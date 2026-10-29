@@ -1,0 +1,34 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#1e1b4b"/>
+      <stop offset=".55" stop-color="#4338ca"/>
+      <stop offset="1" stop-color="#9333ea"/>
+    </linearGradient>
+    <radialGradient id="glow" cx=".5" cy=".46" r=".5">
+      <stop offset="0" stop-color="#a5b4fc" stop-opacity=".55"/>
+      <stop offset="1" stop-color="#a5b4fc" stop-opacity="0"/>
+    </radialGradient>
+    <filter id="soft" x="-30%" y="-30%" width="160%" height="160%">
+      <feDropShadow dx="0" dy="10" stdDeviation="12" flood-color="#0b0820" flood-opacity=".45"/>
+    </filter>
+  </defs>
+  <rect width="512" height="512" rx="112" fill="url(#bg)"/>
+  <circle cx="256" cy="256" r="220" fill="url(#glow)"/>
+  <!-- órbita (parte de trás) -->
+  <ellipse cx="256" cy="256" rx="206" ry="66" transform="rotate(-28 256 256)" fill="none" stroke="#e0e7ff" stroke-opacity=".28" stroke-width="7"/>
+  <!-- matriz 2x2 em losango -->
+  <g transform="translate(256 256) scale(1.12) translate(-256 -256)">
+  <g transform="rotate(45 256 256)" filter="url(#soft)">
+    <rect x="157" y="157" width="92" height="92" rx="24" fill="#ef4444"/>
+    <rect x="263" y="157" width="92" height="92" rx="24" fill="#f97316"/>
+    <rect x="157" y="263" width="92" height="92" rx="24" fill="#3b82f6"/>
+    <rect x="263" y="263" width="92" height="92" rx="24" fill="#14b8a6"/>
+  </g>
+  <path d="M229 182 l19 19 l37 -40" fill="none" stroke="#fff" stroke-width="15" stroke-linecap="round" stroke-linejoin="round"/>
+  </g>
+  <!-- órbita (parte da frente) + elétron -->
+  <path d="M 74.3 352.8 A 206 66 -28 0 0 437.7 159.2" fill="none" stroke="#e0e7ff" stroke-opacity=".8" stroke-width="7" stroke-linecap="round"/>
+  <circle cx="434" cy="193" r="22" fill="#fff" fill-opacity=".25"/>
+  <circle cx="434" cy="193" r="13" fill="#fff"/>
+</svg>
