@@ -1,0 +1,11 @@
+{
+  "name": "FocusMatriz",
+  "short_name": "FocusMatriz",
+  "description": "Controle de pendências pela Matriz Eisenhower",
+  "start_url": "./",
+  "display": "standalone",
+  "background_color": "#f4f5fb",
+  "theme_color": "#4f46e5",
+  "lang": "pt-BR",
+  "icons": [{ "src": "icon.svg", "sizes": "any", "type": "image/svg+xml", "purpose": "any maskable" }]
+}
