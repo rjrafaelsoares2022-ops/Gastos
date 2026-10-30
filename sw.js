@@ -1,6 +1,6 @@
 // Mantém o FocusMatriz abrindo mesmo sem internet.
 // Páginas: tenta a rede primeiro (para pegar atualizações) e cai no cache se estiver offline.
-const CACHE = 'focusmatriz-v3';
+const CACHE = 'focusmatriz-v4';
 const CORE = [
   './',
   'index.html',
@@ -9,7 +9,8 @@ const CORE = [
   'icons/icon-192.png',
   'icons/icon-512.png',
   'icons/icon-maskable-512.png',
-  'icons/apple-touch-icon.png'
+  'icons/apple-touch-icon.png',
+  'nuvem/Code.gs'
 ];
 
 self.addEventListener('install', e => {

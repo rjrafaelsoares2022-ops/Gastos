@@ -13,6 +13,8 @@
 <link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
 <title>FocusMatriz</title>
 <style>
+@property --p { syntax: '<number>'; inherits: true; initial-value: 0; }
+
 :root {
   --bg: #f4f5fb;
   --card: #ffffff;
@@ -25,6 +27,7 @@
   --q2: #ea580c; --q2-soft: #fff7ed; --q2-line: #fed7aa;
   --q3: #2563eb; --q3-soft: #eff6ff; --q3-line: #bfdbfe;
   --q4: #0d9488; --q4-soft: #f0fdfa; --q4-line: #99f6e4;
+  --ok: #16a34a;
   --radius: 12px;
 }
 
@@ -44,7 +47,7 @@ input, select, textarea { font: inherit; color: inherit; }
 
 .wrap { max-width: 640px; margin: 0 auto; padding: 0 12px; }
 
-/* ---------- Cabeçalho compacto ---------- */
+/* ---------- Cabeçalho ---------- */
 header {
   position: sticky; top: 0; z-index: 20;
   background: rgba(255,255,255,.96);
@@ -52,7 +55,7 @@ header {
   border-bottom: 1px solid var(--line);
   padding-top: env(safe-area-inset-top);
 }
-.top { display: flex; align-items: center; gap: 10px; padding: 10px 0; }
+.top { display: flex; align-items: center; gap: 8px; padding: 10px 0; }
 .logo { width: 38px; height: 38px; flex: none; display: block; }
 .brand { flex: 1; min-width: 0; }
 .brand h1 { font-size: 17px; font-weight: 800; letter-spacing: -.2px; }
@@ -62,33 +65,49 @@ header {
   display: grid; place-items: center; font-size: 20px; font-weight: 700;
   background: #f1f5f9;
 }
+.sync-dot { position: relative; font-size: 18px; }
+.sync-dot::after {
+  content: ''; position: absolute; right: 5px; bottom: 6px; width: 9px; height: 9px; border-radius: 50%;
+  background: #94a3b8; border: 2px solid #f1f5f9;
+}
+.sync-dot.ok::after { background: var(--ok); }
+.sync-dot.busy::after { background: #f59e0b; }
+.sync-dot.err::after { background: var(--q1); }
 
-.filters { display: flex; gap: 6px; padding-bottom: 10px; overflow-x: auto; scrollbar-width: none; }
+.filters { display: flex; gap: 5px; padding-bottom: 10px; overflow-x: auto; scrollbar-width: none; }
 .filters::-webkit-scrollbar { display: none; }
 .filters.subs { margin-top: -4px; }
 .filters:empty { display: none; }
 .chip {
-  flex: none; padding: 6px 12px; border-radius: 999px; font-size: 13px; font-weight: 600;
+  flex: none; padding: 6px 9px; border-radius: 999px; font-size: 12.5px; font-weight: 600;
   background: #f1f5f9; color: #334155; border: 1px solid transparent;
 }
-.chip b { font-weight: 700; opacity: .6; margin-left: 4px; }
+.chip b { font-weight: 700; opacity: .6; margin-left: 3px; }
 .chip.on { background: #eef2ff; color: var(--brand); border-color: #c7d2fe; }
 .chip.small { padding: 4px 10px; font-size: 12px; }
 
-/* ---------- Resumo do dia ---------- */
+/* ---------- Resumo do dia com percentual grande ---------- */
 .today {
-  display: block; width: 100%; text-align: left;
+  display: flex; align-items: center; gap: 14px; width: 100%; text-align: left;
   margin: 12px 0 10px; background: var(--card); border: 1px solid var(--line);
   border-radius: var(--radius); padding: 10px 12px;
 }
-.today-row { display: flex; justify-content: space-between; gap: 8px; font-size: 13px; color: var(--muted); }
-.today-row strong { color: var(--text); }
-.bar-row { display: flex; align-items: center; gap: 8px; margin-top: 8px; }
-.bar { flex: 1; height: 6px; background: #eef2f7; border-radius: 99px; overflow: hidden; }
-.bar i { display: block; height: 100%; width: 0; background: linear-gradient(90deg, #22c55e, #16a34a); border-radius: 99px; transition: width .4s; }
-.pct { font-size: 12px; font-weight: 800; color: #16a34a; min-width: 34px; text-align: right; }
+.ring {
+  --p: 0;
+  width: 72px; height: 72px; flex: none; border-radius: 50%;
+  background: conic-gradient(var(--ok) calc(var(--p) * 1%), #e5e7eb 0);
+  display: grid; place-items: center; transition: --p .7s ease;
+}
+.ring span {
+  width: 56px; height: 56px; border-radius: 50%; background: #fff;
+  display: grid; place-items: center; font-weight: 900; font-size: 18px; color: var(--ok); letter-spacing: -.5px;
+}
+.today-txt { flex: 1; min-width: 0; }
+.today-txt b { display: block; font-size: 16px; font-weight: 800; }
+.today-txt small { display: block; margin-top: 3px; font-size: 13px; color: var(--muted); }
+.today-txt small strong { color: var(--text); }
 
-/* ---------- Captura rápida ---------- */
+/* ---------- Captura rápida + voz ---------- */
 .quick { margin-bottom: 14px; }
 .quick form { display: flex; gap: 6px; }
 .quick input {
@@ -96,6 +115,10 @@ header {
   border: 1px solid var(--line); background: #fff; outline: none;
 }
 .quick input:focus { border-color: #a5b4fc; box-shadow: 0 0 0 3px #e0e7ff; }
+.mic {
+  flex: none; width: 46px; border-radius: 10px; font-size: 20px; color: #fff;
+  background: linear-gradient(135deg, #4338ca, #9333ea);
+}
 .quick-q { display: none; gap: 6px; margin-top: 6px; }
 .quick.typing .quick-q { display: grid; grid-template-columns: repeat(4, 1fr); }
 .qbtn { padding: 8px 2px; border-radius: 9px; font-size: 12px; font-weight: 700; color: #fff; }
@@ -113,11 +136,12 @@ header {
 .quad.closed .quad-body { display: none; }
 .quad-body { padding: 8px; display: flex; flex-direction: column; gap: 6px; }
 
-/* Q1 continua vermelho e chamativo, mas numa faixa fina */
-.quad.q1 { border: 2px solid var(--q1); }
-.quad.q1 .quad-head { background: linear-gradient(90deg, #b91c1c, #ef4444); color: #fff; }
+/* Q1 bem visível em vermelho */
+.quad.q1 { border: 2px solid #b91c1c; box-shadow: 0 6px 18px rgba(220,38,38,.18); }
+.quad.q1 .quad-head { background: linear-gradient(90deg, #991b1b, #dc2626); color: #fff; padding: 11px 12px; }
+.quad.q1 .quad-head .qt { font-size: 15px; }
 .quad.q1 .count { background: #fff; color: var(--q1); }
-.quad.q1 .quad-body { background: var(--q1-soft); }
+.quad.q1 .quad-body { background: #fff5f5; }
 .quad.q2 { border-color: var(--q2-line); } .quad.q2 .quad-head { background: var(--q2-soft); color: var(--q2); } .quad.q2 .count { background: var(--q2); color: #fff; }
 .quad.q3 { border-color: var(--q3-line); } .quad.q3 .quad-head { background: var(--q3-soft); color: var(--q3); } .quad.q3 .count { background: var(--q3); color: #fff; }
 .quad.q4 { border-color: var(--q4-line); } .quad.q4 .quad-head { background: var(--q4-soft); color: var(--q4); } .quad.q4 .count { background: var(--q4); color: #fff; }
@@ -133,22 +157,33 @@ header {
   border-radius: 10px; padding: 8px 10px;
   transition: opacity .25s, transform .25s;
 }
-.task.q1 { --qc: var(--q1); border-color: var(--q1-line); border-left-color: var(--q1); }
 .task.q2 { --qc: var(--q2); } .task.q3 { --qc: var(--q3); } .task.q4 { --qc: var(--q4); }
 .task.leaving { opacity: 0; transform: translateX(40px) scale(.97); }
 
 .check {
   width: 24px; height: 24px; flex: none; margin-top: 1px; border-radius: 50%;
-  border: 2px solid #94a3b8; display: grid; place-items: center; color: #fff; font-size: 13px;
-  transition: background .15s, border-color .15s;
+  border: 2px solid #94a3b8; display: grid; place-items: center; color: transparent; font-size: 13px; font-weight: 900;
+  transition: background .15s, border-color .15s, color .15s;
 }
-.task.leaving .check { background: #10b981; border-color: #10b981; }
+.task.leaving .check { background: #10b981; border-color: #10b981; color: #fff; }
 .task-main { flex: 1; min-width: 0; text-align: left; }
 .task-title { font-weight: 650; font-size: 15px; color: var(--qc); word-break: break-word; }
 .meta { display: flex; flex-wrap: wrap; gap: 4px 10px; margin-top: 2px; font-size: 12px; color: var(--muted); }
 .meta .late { color: var(--q1); font-weight: 600; }
 .meta .hi { color: var(--q1); font-weight: 700; }
 .meta .desc { flex-basis: 100%; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+
+/* Tarefas do Q1: cartão vermelho cheio */
+.task.q1 {
+  --qc: #fff;
+  background: linear-gradient(135deg, #dc2626, #ef4444);
+  border-color: #b91c1c; border-left: 6px solid #7f1d1d;
+  box-shadow: 0 3px 10px rgba(185,28,28,.25);
+}
+.task.q1 .task-title { font-weight: 750; }
+.task.q1 .meta { color: #fee2e2; }
+.task.q1 .meta .late, .task.q1 .meta .hi { color: #fff; background: rgba(127,29,29,.45); padding: 0 6px; border-radius: 6px; }
+.task.q1 .check { border-color: #fff; }
 
 /* ---------- Botão flutuante ---------- */
 .fab {
@@ -157,7 +192,7 @@ header {
   background: linear-gradient(135deg, #4338ca, #9333ea); box-shadow: 0 8px 20px rgba(79,70,229,.4);
 }
 
-/* ---------- Folhas (menu, formulário, histórico) ---------- */
+/* ---------- Folhas (menu, formulário, histórico...) ---------- */
 .sheet-bg { position: fixed; inset: 0; background: rgba(15,23,42,.45); z-index: 40; display: none; }
 .sheet-bg.open { display: block; }
 .sheet {
@@ -170,6 +205,7 @@ header {
 .sheet-close { position: absolute; top: 8px; right: 10px; width: 34px; height: 34px; border-radius: 50%; background: #f1f5f9; color: var(--muted); font-size: 15px; }
 .grab { width: 40px; height: 4px; background: #cbd5e1; border-radius: 99px; margin: 0 auto 12px; }
 .sheet h2 { font-size: 17px; margin-bottom: 12px; }
+.sheet p.note { font-size: 13px; color: var(--muted); margin-bottom: 10px; }
 
 .menu-item { width: 100%; display: flex; align-items: center; gap: 12px; padding: 13px 4px; border-bottom: 1px solid #f1f5f9; text-align: left; font-weight: 600; }
 .menu-item span { font-size: 20px; width: 26px; text-align: center; }
@@ -184,6 +220,7 @@ header {
 .field input:focus, .field textarea:focus { border-color: #a5b4fc; box-shadow: 0 0 0 3px #e0e7ff; }
 .field textarea { min-height: 60px; resize: vertical; }
 .row2 { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 8px; }
+.row2 input { width: 100%; padding: 10px 12px; border: 1px solid var(--line); border-radius: 10px; background: #fff; }
 
 .seg { display: flex; flex-wrap: wrap; gap: 6px; }
 .seg button {
@@ -197,30 +234,76 @@ header {
 .seg.quads { display: grid; grid-template-columns: 1fr 1fr; }
 .seg.quads button { text-align: left; }
 .seg.quads button small { display: block; font-size: 11px; font-weight: 500; opacity: .8; }
-.seg.quads button[data-v="1"].on { background: var(--q1-soft); border-color: var(--q1); color: var(--q1); }
+.seg.quads button[data-v="1"].on { background: var(--q1); border-color: var(--q1); color: #fff; }
 .seg.quads button[data-v="2"].on { background: var(--q2-soft); border-color: var(--q2); color: var(--q2); }
 .seg.quads button[data-v="3"].on { background: var(--q3-soft); border-color: var(--q3); color: var(--q3); }
 .seg.quads button[data-v="4"].on { background: var(--q4-soft); border-color: var(--q4); color: var(--q4); }
 
 .actions { display: flex; gap: 8px; margin-top: 6px; }
-.btn { flex: 1; padding: 12px; border-radius: 11px; font-weight: 700; background: #f1f5f9; }
+.btn { flex: 1; padding: 12px; border-radius: 11px; font-weight: 700; background: #f1f5f9; text-align: center; }
 .btn.primary { background: var(--brand); color: #fff; }
 .btn.danger { flex: none; padding: 12px 14px; background: #fef2f2; color: var(--q1); }
+.btn.block { display: block; width: 100%; margin-top: 8px; }
 
-/* Histórico / lixeira */
+/* Histórico, lixeira, subcategorias */
 .tabs { display: flex; gap: 6px; margin-bottom: 10px; }
 .hist { display: flex; flex-direction: column; gap: 6px; }
-.hist-item { display: flex; align-items: center; gap: 10px; padding: 9px 10px; border: 1px solid var(--line); border-radius: 10px; }
+.hist-item { display: flex; align-items: center; gap: 8px; padding: 9px 10px; border: 1px solid var(--line); border-radius: 10px; }
 .hist-item div { flex: 1; min-width: 0; }
 .hist-item b { display: block; font-weight: 600; font-size: 14px; word-break: break-word; }
 .hist-item small { color: var(--muted); font-size: 12px; }
-.hist-item button { flex: none; padding: 7px 10px; border-radius: 9px; background: #eef2ff; color: var(--brand); font-weight: 700; font-size: 13px; }
+.hist-item button { flex: none; padding: 7px 10px; border-radius: 9px; background: #eef2ff; color: var(--brand); font-weight: 700; font-size: 12px; }
+.hist-item button.del { background: #fef2f2; color: var(--q1); }
+.hist-item button.pin-on { background: var(--brand); color: #fff; }
 .hist-foot { margin-top: 12px; }
-
-.sub-manage .hist-item button { background: #fef2f2; color: var(--q1); }
 .sub-add { display: flex; gap: 6px; margin-top: 10px; }
 .sub-add input { flex: 1; min-width: 0; padding: 10px 12px; border: 1px solid var(--line); border-radius: 10px; }
 .sub-add select { padding: 10px; border: 1px solid var(--line); border-radius: 10px; background: #fff; }
+
+/* Sincronização */
+.steps { margin: 6px 0 12px 20px; font-size: 14px; display: flex; flex-direction: column; gap: 6px; }
+.steps b { font-weight: 700; }
+.sync-state { padding: 10px 12px; border-radius: 10px; background: #f0fdf4; color: #166534; font-weight: 600; font-size: 14px; margin-bottom: 8px; }
+.sync-state.err { background: #fef2f2; color: #991b1b; }
+.sync-url { width: 100%; padding: 10px 12px; border: 1px solid var(--line); border-radius: 10px; margin-top: 6px; }
+
+/* ---------- Comemoração ---------- */
+.celebrate { position: fixed; inset: 0; z-index: 60; display: none; place-items: center; background: rgba(15,23,42,.35); }
+.celebrate.show { display: grid; animation: fadeIn .15s ease; }
+.celebrate canvas { position: absolute; inset: 0; width: 100%; height: 100%; pointer-events: none; }
+.cel-card {
+  position: relative; width: min(320px, calc(100vw - 48px)); background: #fff; border-radius: 22px;
+  padding: 22px 18px 18px; text-align: center; box-shadow: 0 20px 50px rgba(0,0,0,.25);
+  animation: pop .35s cubic-bezier(.2,1.4,.4,1);
+}
+.cel-emoji { font-size: 52px; line-height: 1; }
+.cel-card h3 { font-size: 26px; font-weight: 900; margin-top: 6px; background: linear-gradient(90deg, #4338ca, #db2777); -webkit-background-clip: text; background-clip: text; color: transparent; }
+.cel-card p { font-size: 15px; color: var(--muted); margin-top: 2px; }
+.cel-title { font-weight: 700; color: var(--text); margin-top: 8px; word-break: break-word; }
+.cel-pct { margin-top: 14px; font-size: 14px; color: var(--muted); }
+.cel-pct strong { display: block; font-size: 40px; font-weight: 900; color: var(--ok); line-height: 1.1; }
+.cel-bar { height: 10px; border-radius: 99px; background: #e5e7eb; overflow: hidden; margin-top: 8px; }
+.cel-bar i { display: block; height: 100%; background: linear-gradient(90deg, #22c55e, #16a34a); border-radius: 99px; transition: width .8s ease; width: 0; }
+@keyframes pop { from { transform: scale(.6); opacity: 0; } to { transform: scale(1); opacity: 1; } }
+@keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+
+/* ---------- Voz ---------- */
+.voice { position: fixed; inset: 0; z-index: 55; display: none; align-items: flex-end; justify-content: center; background: rgba(15,23,42,.55); }
+.voice.show { display: flex; }
+.voice-card {
+  width: 100%; max-width: 640px; background: #fff; border-radius: 22px 22px 0 0;
+  padding: 22px 18px calc(22px + env(safe-area-inset-bottom)); text-align: center;
+}
+.mic-big {
+  width: 92px; height: 92px; border-radius: 50%; margin: 0 auto; font-size: 40px; color: #fff;
+  background: linear-gradient(135deg, #4338ca, #9333ea); display: grid; place-items: center;
+}
+.voice.listening .mic-big { animation: pulse 1.2s infinite; }
+@keyframes pulse { 0% { box-shadow: 0 0 0 0 rgba(147,51,234,.5); } 100% { box-shadow: 0 0 0 26px rgba(147,51,234,0); } }
+.voice-text { margin-top: 14px; font-size: 18px; font-weight: 700; min-height: 48px; word-break: break-word; }
+.voice-hint { font-size: 13px; color: var(--muted); margin-top: 6px; }
+.voice-hint code { background: #f1f5f9; padding: 1px 6px; border-radius: 6px; font-family: inherit; }
+.voice-result { margin-top: 10px; font-size: 14px; font-weight: 700; color: var(--ok); min-height: 20px; }
 
 /* ---------- Aviso (desfazer) ---------- */
 .toast {
@@ -233,12 +316,13 @@ header {
 .toast button { color: #a5b4fc; font-weight: 800; padding: 4px 6px; }
 
 @media (prefers-reduced-motion: reduce) {
-  .task, .sheet, .bar i { transition: none; }
+  .task, .sheet, .ring, .cel-bar i { transition: none; }
+  .cel-card, .voice.listening .mic-big { animation: none; }
 }
 
 /* ---------- PDF / impressão ---------- */
 @media print {
-  header .icon-btn, .filters, .quick, .fab, .toast, .sheet, .sheet-bg, .caret, .check { display: none !important; }
+  header .icon-btn, .filters, .quick, .fab, .toast, .sheet, .sheet-bg, .caret, .check, .celebrate, .voice { display: none !important; }
   header { position: static; border: 0; }
   body { background: #fff; padding: 0; }
   .quad.closed .quad-body { display: flex !important; }
@@ -278,6 +362,7 @@ header {
         <h1>FocusMatriz</h1>
         <p id="todayLabel">Matriz Eisenhower</p>
       </div>
+      <button class="icon-btn sync-dot" id="syncDot" aria-label="Sincronização">☁️</button>
       <button class="icon-btn" id="menuBtn" aria-label="Mais opções">⋯</button>
     </div>
     <div class="filters" id="filters"></div>
@@ -287,17 +372,17 @@ header {
 
 <main class="wrap">
   <button class="today" id="todayCard" aria-label="Ver concluídas">
-    <div class="today-row">
-      <span>✅ <strong id="doneToday">0</strong> feitas hoje</span>
-      <span>⏳ <strong id="pendingCount">0</strong> para hoje</span>
-      <span>🔥 <strong id="q1Count">0</strong> no Q1</span>
+    <div class="ring" id="ring"><span id="pct">0%</span></div>
+    <div class="today-txt">
+      <b id="todayHead">Metas de hoje</b>
+      <small>✅ <strong id="doneToday">0</strong> feitas · ⏳ <strong id="pendingCount">0</strong> faltam · 🔥 <strong id="q1Count">0</strong> no Q1</small>
     </div>
-    <div class="bar-row"><div class="bar"><i id="bar"></i></div><span class="pct" id="pct">0%</span></div>
   </button>
 
   <section class="quick" id="quick">
     <form id="quickForm" autocomplete="off">
-      <input id="quickInput" placeholder="Anotar pendência rápida…" enterkeyhint="done">
+      <input id="quickInput" placeholder="Ex.: q1 trabalho fazer slide" enterkeyhint="done">
+      <button type="button" class="mic" id="micBtn" aria-label="Falar tarefa">🎤</button>
     </form>
     <div class="quick-q">
       <button class="qbtn q1" data-q="1">🔥 Agora</button>
@@ -318,14 +403,23 @@ header {
 <div class="sheet" id="menuSheet">
   <div class="grab"></div><button class="sheet-close" data-close aria-label="Fechar">✕</button>
   <button class="menu-item install" data-act="install" id="installItem" hidden><span>📲</span>Instalar como aplicativo</button>
+  <button class="menu-item" data-act="sync"><span>☁️</span>Sincronizar celular e computador</button>
   <button class="menu-item" data-act="history"><span>✅</span>Concluídas e lixeira</button>
-  <button class="menu-item" data-act="subs"><span>🏷️</span>Subcategorias</button>
+  <button class="menu-item" data-act="subs"><span>🏷️</span>Subcategorias e abas</button>
+  <button class="menu-item" data-act="sound"><span>🔔</span><em id="soundLabel" style="font-style:normal">Som ao concluir: ligado</em></button>
   <button class="menu-item" data-act="export"><span>📥</span>Exportar planilha (Excel)</button>
   <button class="menu-item" data-act="import"><span>📤</span>Importar planilha (Excel)</button>
   <button class="menu-item" data-act="pdf"><span>🖨️</span>Salvar em PDF / Imprimir</button>
   <button class="menu-item" data-act="examples"><span>🧪</span>Carregar exemplos</button>
   <button class="menu-item danger" data-act="reset"><span>🗑️</span>Zerar tudo (vai para a lixeira)</button>
   <input type="file" id="fileInput" accept=".xlsx,.xls,.csv" hidden>
+</div>
+
+<!-- Sincronização -->
+<div class="sheet" id="syncSheet">
+  <div class="grab"></div><button class="sheet-close" data-close aria-label="Fechar">✕</button>
+  <h2>☁️ Celular e computador juntos</h2>
+  <div id="syncBody"></div>
 </div>
 
 <!-- Concluídas e lixeira -->
@@ -340,13 +434,14 @@ header {
 </div>
 
 <!-- Subcategorias -->
-<div class="sheet sub-manage" id="subSheet">
+<div class="sheet" id="subSheet">
   <div class="grab"></div><button class="sheet-close" data-close aria-label="Fechar">✕</button>
-  <h2>Subcategorias</h2>
+  <h2>Subcategorias e abas</h2>
+  <p class="note">📌 Aba: a subcategoria vira uma aba no topo, ao lado de Trabalho e Pessoal.</p>
   <div class="hist" id="subList"></div>
   <form class="sub-add" id="subForm" autocomplete="off">
     <select id="subArea"><option>Pessoal</option><option>Trabalho</option></select>
-    <input id="subName" placeholder="Nova (ex.: Pai)" maxlength="30">
+    <input id="subName" placeholder="Nova (ex.: Mãe)" maxlength="30">
     <button class="btn primary" style="flex:none">+</button>
   </form>
 </div>
@@ -410,6 +505,29 @@ header {
   </form>
 </div>
 
+<!-- Comemoração -->
+<div class="celebrate" id="celebrate">
+  <canvas id="confetti"></canvas>
+  <div class="cel-card">
+    <div class="cel-emoji" id="celEmoji">🎉</div>
+    <h3 id="celHead">Parabéns!</h3>
+    <p>Essa meta foi realizada.</p>
+    <div class="cel-title" id="celTitle"></div>
+    <div class="cel-pct"><strong id="celPct">0%</strong>das metas de hoje concluídas<div class="cel-bar"><i id="celBar"></i></div></div>
+  </div>
+</div>
+
+<!-- Voz -->
+<div class="voice" id="voice">
+  <div class="voice-card">
+    <button class="mic-big" id="voiceMic" aria-label="Falar de novo">🎤</button>
+    <div class="voice-text" id="voiceText">Pode falar…</div>
+    <div class="voice-result" id="voiceResult"></div>
+    <div class="voice-hint">Exemplos: <code>Q1, trabalho, fazer slide</code> · <code>pai, comprar remédio amanhã</code> · <code>quando der, pessoal, lavar o carro</code></div>
+    <button class="btn block" id="voiceCancel">Fechar</button>
+  </div>
+</div>
+
 <div class="toast" id="toast"><span id="toastMsg"></span><button id="toastUndo">Desfazer</button></div>
 
 <script>
@@ -418,8 +536,10 @@ header {
 
   const STORE = 'focusmatriz.tasks.v3';
   const UI_STORE = 'focusmatriz.ui.v3';
+  const SYNC_STORE = 'focusmatriz.sync.v1';
   const OLD_STORE = 'focusmatriz.tasks.v2';
   const TRASH_DAYS = 30;
+  const OLD_STAMP = '2000-01-01T00:00:00.000Z';
 
   const QUADS = {
     1: { key: 'q1', icon: '🔥', name: 'Urgente & Importante', action: 'Faça agora', label: 'Q1: Urgente & Importante' },
@@ -429,6 +549,8 @@ header {
   };
   const AREAS = { 'Trabalho': '💼', 'Pessoal': '👤' };
   const DEFAULT_SUBS = { Trabalho: [], Pessoal: ['Pai', 'Casa Ilha', 'Casa Cabo Frio', 'Saúde', 'Finanças', 'Diversos'] };
+  const SUB_ICONS = { 'Pai': '👴', 'Mãe': '👵', 'Casa Ilha': '🏝️', 'Casa Cabo Frio': '🌊', 'Casa': '🏠', 'Saúde': '🍎', 'Finanças': '💰', 'Diversos': '🧩' };
+  const subIcon = s => SUB_ICONS[s] || '🏷️';
   const PRI_RANK = { 'Alta': 0, 'Média': 1, 'Baixa': 2 };
 
   const $ = s => document.querySelector(s);
@@ -442,8 +564,14 @@ header {
     try { localStorage.setItem(key, JSON.stringify(val)); } catch (e) { /* armazenamento indisponível */ }
   }
 
-  const ui = Object.assign({ filter: 'all', sub: '', closed: { later: true }, lastArea: 'Trabalho', lastSub: '', subs: DEFAULT_SUBS }, load(UI_STORE, {}));
+  const nowIso = () => new Date().toISOString();
+
+  const ui = Object.assign({
+    filter: 'all', sub: '', closed: { later: true }, lastArea: 'Trabalho', sound: true,
+    subs: DEFAULT_SUBS, pinned: ['Pai'], cfgUpdatedAt: OLD_STAMP
+  }, load(UI_STORE, {}));
   ui.subs = Object.assign({ Trabalho: [], Pessoal: [] }, ui.subs);
+  if (!Array.isArray(ui.pinned)) ui.pinned = ['Pai'];
 
   // Converte as antigas categorias (Casa, Saúde...) em área + subcategoria.
   function areaFromCategory(cat) {
@@ -451,11 +579,16 @@ header {
     if (cat === 'Pessoal') return { area: 'Pessoal', sub: '' };
     return { area: 'Pessoal', sub: cat };
   }
+  function areaOfSub(sub) {
+    return (ui.subs.Trabalho || []).includes(sub) ? 'Trabalho' : 'Pessoal';
+  }
 
   function addSub(area, sub) {
-    if (!sub) return;
+    if (!sub) return false;
     const list = ui.subs[area] || (ui.subs[area] = []);
-    if (!list.some(s => s.toLowerCase() === sub.toLowerCase())) list.push(sub);
+    if (list.some(s => s.toLowerCase() === sub.toLowerCase())) return false;
+    list.push(sub);
+    return true;
   }
 
   let tasks = load(STORE, null);
@@ -473,13 +606,20 @@ header {
       };
     });
   }
-  // Lixeira guarda por 30 dias.
-  const trashLimit = Date.now() - TRASH_DAYS * 86400000;
-  tasks = tasks.filter(t => !t.deletedAt || new Date(t.deletedAt).getTime() > trashLimit);
+  tasks.forEach(t => { if (!t.updatedAt) t.updatedAt = OLD_STAMP; });
 
-  const persist = () => save(STORE, tasks);
+  // Lixeira guarda por 30 dias; depois a tarefa é marcada como removida (some de todos os aparelhos).
+  const trashLimit = Date.now() - TRASH_DAYS * 86400000;
+  tasks.forEach(t => {
+    if (t.deletedAt && !t.purged && new Date(t.deletedAt).getTime() < trashLimit) { t.purged = true; t.updatedAt = nowIso(); }
+  });
+
+  const touch = t => { t.updatedAt = nowIso(); return t; };
+  const saveLocal = () => save(STORE, tasks);
   const persistUi = () => save(UI_STORE, ui);
-  persist(); persistUi();
+  function persist() { saveLocal(); scheduleSync(); }
+  function configChanged() { ui.cfgUpdatedAt = nowIso(); persistUi(); scheduleSync(); }
+  saveLocal(); persistUi();
 
   // ---------- Datas ----------
   const pad = n => String(n).padStart(2, '0');
@@ -497,9 +637,10 @@ header {
   const newId = () => 'tsk-' + Date.now() + Math.floor(Math.random() * 1000);
 
   // ---------- Seleção ----------
-  const alive = t => !t.deletedAt;
+  const alive = t => !t.deletedAt && !t.purged;
   const isFuture = t => !!t.date && t.date > todayIso();
   function matchesFilter(t) {
+    if (ui.filter.startsWith('sub:')) return t.sub === ui.filter.slice(4);
     if (ui.filter !== 'all' && t.area !== ui.filter) return false;
     if (ui.sub && t.sub !== ui.sub) return false;
     return true;
@@ -511,6 +652,15 @@ header {
       || (a.time || '99').localeCompare(b.time || '99');
   }
 
+  function todayStats() {
+    const today = todayIso();
+    const live = tasks.filter(t => alive(t) && matchesFilter(t));
+    const doneToday = live.filter(t => t.done && t.completedAt && isoDate(new Date(t.completedAt)) === today).length;
+    const pending = live.filter(t => !t.done && !isFuture(t));
+    const total = doneToday + pending.length;
+    return { doneToday, pending, total, pct: total ? Math.round(doneToday / total * 100) : 0 };
+  }
+
   function taskHtml(t, opts) {
     let when = '';
     if (t.date && !(opts && opts.noDate)) {
@@ -518,8 +668,9 @@ header {
       if (diff < 0) when = '<span class="late">⚠️ atrasada ' + (-diff) + 'd</span>';
       else if (diff > 0) when = '<span>📅 ' + fmtDay(t.date) + '</span>';
     }
+    const where = t.sub ? subIcon(t.sub) + ' ' + esc(t.sub) : AREAS[t.area] + ' ' + esc(t.area);
     const meta = [
-      '<span>' + AREAS[t.area] + ' ' + esc(t.sub ? t.area + ' · ' + t.sub : t.area) + '</span>',
+      '<span>' + (t.sub ? AREAS[t.area] + ' ' + esc(t.area) + ' · ' + esc(t.sub) : where) + '</span>',
       t.priority === 'Alta' ? '<span class="hi">▲ Alta</span>' : '',
       when,
       t.time ? '<span>⏰ ' + esc(t.time) + '</span>' : '',
@@ -541,15 +692,18 @@ header {
     const pendingAll = live.filter(t => !t.done);
     const nowList = pendingAll.filter(t => !isFuture(t));
 
-    // filtros de área
-    const cnt = a => nowList.filter(t => a === 'all' || t.area === a).length;
-    $('#filters').innerHTML = [['all', '🌟 Todos'], ['Trabalho', '💼 Trabalho'], ['Pessoal', '👤 Pessoal']]
-      .map(([k, l]) => '<button class="chip' + (ui.filter === k ? ' on' : '') + '" data-filter="' + k + '">' + l + '<b>' + cnt(k) + '</b></button>')
-      .join('');
+    // abas: Todos, Trabalho, Pessoal e subcategorias fixadas (ex.: Pai)
+    if (ui.filter.startsWith('sub:') && !ui.pinned.includes(ui.filter.slice(4))) ui.filter = 'all';
+    const tabs = [['all', 'Todos', nowList.length],
+      ['Trabalho', '💼 Trabalho', nowList.filter(t => t.area === 'Trabalho').length],
+      ['Pessoal', '👤 Pessoal', nowList.filter(t => t.area === 'Pessoal').length]]
+      .concat(ui.pinned.map(s => ['sub:' + s, subIcon(s) + ' ' + s, nowList.filter(t => t.sub === s).length]));
+    $('#filters').innerHTML = tabs.map(([k, l, n]) =>
+      '<button class="chip' + (ui.filter === k ? ' on' : '') + '" data-filter="' + esc(k) + '">' + esc(l) + '<b>' + n + '</b></button>').join('');
 
-    // filtros de subcategoria (só as que têm tarefas)
+    // subfiltros dentro de Trabalho/Pessoal (só os que têm tarefas)
     let subHtml = '';
-    if (ui.filter !== 'all') {
+    if (ui.filter === 'Trabalho' || ui.filter === 'Pessoal') {
       const used = {};
       pendingAll.filter(t => t.area === ui.filter && t.sub).forEach(t => { used[t.sub] = (used[t.sub] || 0) + 1; });
       const names = Object.keys(used).sort((a, b) => a.localeCompare(b, 'pt-BR'));
@@ -564,15 +718,14 @@ header {
     const shownNow = nowList.filter(matchesFilter);
     const shownLater = pendingAll.filter(t => isFuture(t) && matchesFilter(t));
 
-    // resumo do dia
-    const doneToday = live.filter(t => t.done && t.completedAt && isoDate(new Date(t.completedAt)) === today && matchesFilter(t)).length;
-    const total = doneToday + shownNow.length;
-    const pct = total ? Math.round(doneToday / total * 100) : 0;
-    $('#doneToday').textContent = doneToday;
-    $('#pendingCount').textContent = shownNow.length;
-    $('#q1Count').textContent = shownNow.filter(t => t.quadrant === 1).length;
-    $('#bar').style.width = pct + '%';
-    $('#pct').textContent = pct + '%';
+    // percentual do dia
+    const st = todayStats();
+    $('#ring').style.setProperty('--p', st.pct);
+    $('#pct').textContent = st.pct + '%';
+    $('#todayHead').textContent = st.total ? st.doneToday + ' de ' + st.total + ' metas de hoje' : 'Nenhuma meta para hoje';
+    $('#doneToday').textContent = st.doneToday;
+    $('#pendingCount').textContent = st.pending.length;
+    $('#q1Count').textContent = st.pending.filter(t => t.quadrant === 1).length;
 
     // quadrantes
     let html = [1, 2, 3, 4].map(q => {
@@ -609,9 +762,10 @@ header {
 
   // ---------- Aviso com desfazer ----------
   let toastTimer = null, undoFn = null;
-  function toast(msg, undo) {
+  function toast(msg, undo, label) {
     $('#toastMsg').textContent = msg;
     $('#toastUndo').hidden = !undo;
+    $('#toastUndo').textContent = label || 'Desfazer';
     undoFn = undo || null;
     $('#toast').classList.add('show');
     clearTimeout(toastTimer);
@@ -625,8 +779,76 @@ header {
 
   function snapshotUndo() {
     const before = JSON.stringify(tasks);
-    return () => { tasks = JSON.parse(before); persist(); render(); renderHistory(); };
+    // Ao desfazer, as tarefas voltam ao estado anterior com carimbo novo, para a nuvem aceitar.
+    return () => {
+      const prev = JSON.parse(before), stamp = nowIso();
+      const prevIds = new Set(prev.map(t => t.id));
+      tasks.forEach(t => { if (!prevIds.has(t.id)) prev.push(Object.assign(t, { deletedAt: stamp, purged: true })); });
+      prev.forEach(t => { t.updatedAt = stamp; });
+      tasks = prev; persist(); render(); renderHistory();
+    };
   }
+
+  // ---------- Comemoração (dopamina!) ----------
+  const CHEERS = [['🎉', 'Parabéns!'], ['🚀', 'Mandou bem!'], ['💪', 'Uma a menos!'], ['⭐', 'Isso aí!'], ['🔥', 'Que foco!']];
+  let celTimer = null, audioCtx = null;
+
+  function chime() {
+    if (!ui.sound) return;
+    try {
+      audioCtx = audioCtx || new (window.AudioContext || window.webkitAudioContext)();
+      const t0 = audioCtx.currentTime;
+      [[784, 0], [1047, .09], [1319, .18]].forEach(([f, d]) => {
+        const o = audioCtx.createOscillator(), g = audioCtx.createGain();
+        o.type = 'sine'; o.frequency.value = f;
+        g.gain.setValueAtTime(0.0001, t0 + d);
+        g.gain.exponentialRampToValueAtTime(0.25, t0 + d + 0.02);
+        g.gain.exponentialRampToValueAtTime(0.0001, t0 + d + 0.35);
+        o.connect(g).connect(audioCtx.destination);
+        o.start(t0 + d); o.stop(t0 + d + 0.4);
+      });
+    } catch (e) { /* sem áudio */ }
+  }
+
+  function confetti() {
+    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+    const cv = $('#confetti'), ctx = cv.getContext('2d');
+    const W = cv.width = innerWidth * devicePixelRatio, H = cv.height = innerHeight * devicePixelRatio;
+    const colors = ['#ef4444', '#f97316', '#3b82f6', '#14b8a6', '#a855f7', '#facc15'];
+    const parts = Array.from({ length: 140 }, () => ({
+      x: W / 2, y: H * 0.45, vx: (Math.random() - .5) * 26 * devicePixelRatio, vy: (Math.random() * -22 - 6) * devicePixelRatio,
+      s: (6 + Math.random() * 8) * devicePixelRatio, r: Math.random() * 6, vr: (Math.random() - .5) * .4, c: colors[Math.random() * colors.length | 0]
+    }));
+    const start = performance.now();
+    (function frame(now) {
+      ctx.clearRect(0, 0, W, H);
+      parts.forEach(p => {
+        p.vy += 0.7 * devicePixelRatio; p.vx *= 0.985; p.x += p.vx; p.y += p.vy; p.r += p.vr;
+        ctx.save(); ctx.translate(p.x, p.y); ctx.rotate(p.r); ctx.fillStyle = p.c; ctx.fillRect(-p.s / 2, -p.s / 4, p.s, p.s / 2); ctx.restore();
+      });
+      if (now - start < 2200 && $('#celebrate').classList.contains('show')) requestAnimationFrame(frame);
+      else ctx.clearRect(0, 0, W, H);
+    })(start);
+  }
+
+  function celebrate(t) {
+    const st = todayStats();
+    const [emoji, head] = st.pct >= 100 && st.total ? ['🏆', 'Dia zerado!'] : CHEERS[Math.random() * CHEERS.length | 0];
+    $('#celEmoji').textContent = emoji;
+    $('#celHead').textContent = head;
+    $('#celTitle').textContent = '✓ ' + t.title;
+    $('#celPct').textContent = st.pct + '%';
+    $('#celBar').style.width = '0';
+    $('#celebrate').classList.add('show');
+    requestAnimationFrame(() => requestAnimationFrame(() => { $('#celBar').style.width = st.pct + '%'; }));
+    chime();
+    if (navigator.vibrate) navigator.vibrate([40, 60, 40]);
+    confetti();
+    clearTimeout(celTimer);
+    celTimer = setTimeout(hideCelebrate, 2300);
+  }
+  function hideCelebrate() { $('#celebrate').classList.remove('show'); }
+  $('#celebrate').addEventListener('click', hideCelebrate);
 
   // ---------- Ações no quadro ----------
   document.addEventListener('click', e => {
@@ -648,10 +870,12 @@ header {
       // Concluir tira a tarefa da tela; ela fica em "Concluídas" para recuperar.
       const undo = snapshotUndo();
       t.done = true;
-      t.completedAt = new Date().toISOString();
+      t.completedAt = nowIso();
+      touch(t);
       persist();
       card.classList.add('leaving');
       setTimeout(render, 260);
+      celebrate(t);
       toast('Meta realizada! ✅', undo);
     } else if (e.target.closest('[data-edit]')) {
       openForm(t);
@@ -660,26 +884,177 @@ header {
 
   $('#todayCard').addEventListener('click', () => openHistory('done'));
 
+  // ---------- Comando falado ou digitado ----------
+  // Entende frases como "Q1, trabalho, fazer slide" ou "pai comprar remédio amanhã às 15h".
+  const norm = s => String(s).toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g, '').replace(/[.,;:!?]/g, '').trim();
+  const NUM = { '1': 1, 'um': 1, 'uma': 1, 'primeiro': 1, '2': 2, 'dois': 2, 'segundo': 2, '3': 3, 'tres': 3, 'terceiro': 3, '4': 4, 'quatro': 4, 'quarto': 4 };
+  const WEEK = { domingo: 0, segunda: 1, terca: 2, quarta: 3, quinta: 4, sexta: 5, sabado: 6 };
+
+  function nextWeekday(wd) {
+    const d = new Date(), diff = (wd - d.getDay() + 7) % 7 || 7;
+    d.setDate(d.getDate() + diff);
+    return isoDate(d);
+  }
+
+  function parseCommand(text) {
+    const words = String(text).trim().split(/\s+/).filter(Boolean);
+    const n = words.map(norm);
+    const out = { quadrant: null, area: null, sub: null, date: undefined, time: '', priority: 'Média' };
+    const subs = [];
+    Object.keys(ui.subs).forEach(a => (ui.subs[a] || []).forEach(s => subs.push({ a, s, toks: norm(s).split(/\s+/) })));
+    subs.sort((x, y) => y.toks.length - x.toks.length);
+    const seq = (i, arr) => arr.every((w, k) => n[i + k] === w);
+
+    function keyword(i) {
+      const w = n[i];
+      if (/^q[1-4]$/.test(w)) return { len: 1, quadrant: +w[1] };
+      if (['q', 'que', 'k', 'ke', 'cue', 'quadrante'].includes(w) && NUM[n[i + 1]]) return { len: 2, quadrant: NUM[n[i + 1]] };
+      if (seq(i, ['urgente', 'e', 'importante']) || seq(i, ['importante', 'e', 'urgente'])) return { len: 3, quadrant: 1 };
+      if (seq(i, ['faca', 'agora'])) return { len: 2, quadrant: 1 };
+      if (seq(i, ['resolva', 'logo'])) return { len: 2, quadrant: 2 };
+      if (seq(i, ['quando', 'der'])) return { len: 2, quadrant: 4 };
+      if (w === 'urgente') return { len: 1, quadrant: 2 };
+      if (w === 'importante') return { len: 1, quadrant: 3 };
+      if (w === 'trabalho') return { len: 1, area: 'Trabalho' };
+      if (w === 'pessoal' || w === 'particular') return { len: 1, area: 'Pessoal' };
+      for (const s of subs) if (seq(i, s.toks)) return { len: s.toks.length, area: s.a, sub: s.s };
+      if (w === 'hoje') return { len: 1, date: addDays(0) };
+      if (seq(i, ['depois', 'de', 'amanha'])) return { len: 3, date: addDays(2) };
+      if (w === 'amanha') return { len: 1, date: addDays(1) };
+      if (seq(i, ['semana', 'que', 'vem']) || seq(i, ['proxima', 'semana'])) return { len: 2 + (n[i] === 'semana' ? 1 : 0), date: addDays(7) };
+      if (seq(i, ['prioridade', 'alta']) || seq(i, ['alta', 'prioridade'])) return { len: 2, priority: 'Alta' };
+      if (['nova', 'novo', 'tarefa', 'pendencia', 'meta', 'adicionar', 'adiciona', 'anotar', 'anota', 'coloca', 'colocar'].includes(w)) return { len: 1 };
+      return null;
+    }
+
+    // Palavras-chave no começo da frase, em qualquer ordem.
+    let i = 0;
+    while (i < n.length) {
+      if (n[i] === 'e' || n[i] === '') { if (i + 1 < n.length && keyword(i + 1)) { i++; continue; } break; }
+      const k = keyword(i);
+      if (!k) break;
+      ['quadrant', 'area', 'sub', 'date', 'priority'].forEach(f => { if (k[f] !== undefined) out[f] = k[f]; });
+      i += k.len;
+    }
+    let title = words.slice(i).join(' ');
+
+    // Data e horário no fim da frase ("... amanhã às 15h", "... na sexta").
+    for (let pass = 0; pass < 2; pass++) {
+      const tm = title.match(/\s+(?:às|as|a)\s+(\d{1,2})(?:\s*(?::|h)\s*(\d{2}))?\s*(?:h|horas?)?\s*$/i);
+      if (tm && +tm[1] < 24) { out.time = pad(+tm[1]) + ':' + (tm[2] || '00'); title = title.slice(0, tm.index); continue; }
+      const dm = norm(title).match(/\s+(?:para |pra |na |no |de )?(hoje|depois de amanha|amanha|semana que vem|proxima semana|(domingo|segunda|terca|quarta|quinta|sexta|sabado)(?:[- ]feira)?)$/);
+      if (dm) {
+        const key = dm[1];
+        out.date = key === 'hoje' ? addDays(0) : key === 'amanha' ? addDays(1) : key === 'depois de amanha' ? addDays(2)
+          : /semana/.test(key) ? addDays(7) : nextWeekday(WEEK[dm[2]]);
+        title = title.trim().split(/\s+/).slice(0, title.trim().split(/\s+/).length - dm[0].trim().split(/\s+/).length).join(' ');
+      }
+    }
+    title = title.replace(/^[\s,.;:-]+|[\s,.;:-]+$/g, '');
+    out.title = title ? title.charAt(0).toUpperCase() + title.slice(1) : '';
+    return out;
+  }
+
+  function addFromCommand(text, forcedQuadrant) {
+    const c = parseCommand(text);
+    if (!c.title) return null;
+    let area = c.area, sub = c.sub || '';
+    if (sub) area = areaOfSub(sub);
+    if (!area) {
+      if (ui.filter.startsWith('sub:')) { sub = ui.filter.slice(4); area = areaOfSub(sub); }
+      else area = ui.filter !== 'all' ? ui.filter : ui.lastArea || 'Trabalho';
+      if (!sub && ui.sub) sub = ui.sub;
+    }
+    const t = touch({
+      id: newId(), title: c.title, description: '', quadrant: forcedQuadrant || c.quadrant || 2, area, sub,
+      priority: c.priority, date: c.date === undefined ? todayIso() : c.date, time: c.time,
+      done: false, completedAt: null, deletedAt: null
+    });
+    const undo = snapshotUndo();
+    tasks.unshift(t);
+    persist();
+    if (isFuture(t)) ui.closed.later = false; else ui.closed[t.quadrant] = false;
+    render();
+    return { t, undo };
+  }
+
+  function describe(t) {
+    return 'Q' + t.quadrant + ' · ' + (t.sub ? t.sub : t.area) + (isFuture(t) ? ' · ' + fmtDay(t.date) : '') + (t.time ? ' · ' + t.time : '') + ': ' + t.title;
+  }
+
   // ---------- Captura rápida ----------
   const quickInput = $('#quickInput');
   quickInput.addEventListener('input', () => $('#quick').classList.toggle('typing', quickInput.value.trim() !== ''));
   function quickAdd(q) {
-    const title = quickInput.value.trim();
-    if (!title) return;
-    const area = ui.filter !== 'all' ? ui.filter : ui.lastArea || 'Trabalho';
-    tasks.unshift({
-      id: newId(), title, description: '', quadrant: q, area, sub: ui.sub || '',
-      priority: 'Média', date: todayIso(), time: '', done: false, completedAt: null, deletedAt: null
-    });
-    persist();
+    const res = addFromCommand(quickInput.value, q);
+    if (!res) return;
     quickInput.value = '';
     $('#quick').classList.remove('typing');
-    ui.closed[q] = false;
-    render();
-    toast('Adicionada em ' + QUADS[q].name + ' · toque para detalhar');
+    toast('✓ ' + describe(res.t), res.undo);
   }
   $$('.quick-q .qbtn').forEach(b => b.addEventListener('click', () => quickAdd(Number(b.dataset.q))));
-  $('#quickForm').addEventListener('submit', e => { e.preventDefault(); quickAdd(1); });
+  $('#quickForm').addEventListener('submit', e => { e.preventDefault(); quickAdd(null); });
+
+  // ---------- Voz ----------
+  const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
+  let rec = null, gotFinal = false, voiceCloseTimer = null;
+
+  function closeVoice() {
+    clearTimeout(voiceCloseTimer);
+    if (rec) { try { rec.abort(); } catch (e) { /* já parado */ } }
+    $('#voice').classList.remove('show', 'listening');
+  }
+
+  function startVoice() {
+    if (!SR) {
+      alert('Este navegador não tem comando de voz. Use o Chrome, ou toque no campo e use o microfone do teclado.');
+      quickInput.focus();
+      return;
+    }
+    clearTimeout(voiceCloseTimer);
+    $('#voiceText').textContent = 'Pode falar…';
+    $('#voiceResult').textContent = '';
+    $('#voice').classList.add('show', 'listening');
+    gotFinal = false;
+    rec = new SR();
+    rec.lang = 'pt-BR';
+    rec.interimResults = true;
+    rec.maxAlternatives = 1;
+    rec.onresult = ev => {
+      let text = '';
+      for (let k = 0; k < ev.results.length; k++) text += ev.results[k][0].transcript;
+      $('#voiceText').textContent = '“' + text + '”';
+      if (ev.results[ev.results.length - 1].isFinal && !gotFinal) {
+        gotFinal = true;
+        const res = addFromCommand(text, null);
+        $('#voice').classList.remove('listening');
+        if (res) {
+          $('#voiceResult').textContent = '✓ Adicionada: ' + describe(res.t);
+          toast('🎤 ' + describe(res.t), res.undo);
+          if (navigator.vibrate) navigator.vibrate(40);
+          voiceCloseTimer = setTimeout(closeVoice, 1600);
+        } else {
+          $('#voiceResult').textContent = 'Não entendi a tarefa. Toque no microfone e tente de novo.';
+        }
+      }
+    };
+    rec.onerror = ev => {
+      $('#voice').classList.remove('listening');
+      $('#voiceText').textContent = ev.error === 'not-allowed' || ev.error === 'service-not-allowed'
+        ? 'Permita o uso do microfone para este site.'
+        : ev.error === 'no-speech' ? 'Não ouvi nada. Toque no microfone para tentar de novo.'
+        : ev.error === 'network' ? 'O reconhecimento de voz precisa de internet.'
+        : 'Toque no microfone para falar.';
+    };
+    rec.onend = () => {
+      $('#voice').classList.remove('listening');
+      if (!gotFinal && $('#voiceText').textContent === 'Pode falar…') $('#voiceText').textContent = 'Toque no microfone para falar.';
+    };
+    try { rec.start(); } catch (e) { $('#voice').classList.remove('listening'); $('#voiceText').textContent = 'Toque no microfone para falar.'; }
+  }
+  $('#micBtn').addEventListener('click', startVoice);
+  $('#voiceMic').addEventListener('click', startVoice);
+  $('#voiceCancel').addEventListener('click', closeVoice);
 
   // ---------- Folhas ----------
   function openSheet(id) {
@@ -692,10 +1067,11 @@ header {
     $$('.sheet').forEach(s => s.classList.remove('open'));
   }
   $('#sheetBg').addEventListener('click', closeSheets);
+  $$('[data-close]').forEach(b => b.addEventListener('click', closeSheets));
   $('#menuBtn').addEventListener('click', () => openSheet('#menuSheet'));
+  $('#syncDot').addEventListener('click', openSync);
   $('#fab').addEventListener('click', () => openForm(null));
   $('#fCancel').addEventListener('click', closeSheets);
-  $$('[data-close]').forEach(b => b.addEventListener('click', closeSheets));
 
   // ---------- Formulário ----------
   function segSet(sel, v) { $$(sel + ' button[data-v]').forEach(b => b.classList.toggle('on', b.dataset.v === String(v))); }
@@ -706,7 +1082,7 @@ header {
     const area = segGet('#fArea') || 'Trabalho';
     const list = (ui.subs[area] || []).slice();
     if (formSub && !list.includes(formSub)) list.push(formSub);
-    $('#fSub').innerHTML = list.map(s => '<button type="button" data-v="' + esc(s) + '"' + (s === formSub ? ' class="on"' : '') + '>' + esc(s) + '</button>').join('') +
+    $('#fSub').innerHTML = list.map(s => '<button type="button" data-v="' + esc(s) + '"' + (s === formSub ? ' class="on"' : '') + '>' + subIcon(s) + ' ' + esc(s) + '</button>').join('') +
       '<button type="button" class="add" data-add>+ Nova</button>';
   }
 
@@ -720,10 +1096,9 @@ header {
   $('#fSub').addEventListener('click', e => {
     const b = e.target.closest('button'); if (!b) return;
     if (b.hasAttribute('data-add')) {
-      const name = (prompt('Nome da subcategoria (ex.: Pai, Casa Ilha):') || '').trim().slice(0, 30);
+      const name = (prompt('Nome da subcategoria (ex.: Mãe, Carro):') || '').trim().slice(0, 30);
       if (!name) return;
-      addSub(segGet('#fArea') || 'Trabalho', name);
-      persistUi();
+      if (addSub(segGet('#fArea') || 'Trabalho', name)) configChanged();
       formSub = name;
     } else {
       formSub = formSub === b.dataset.v ? '' : b.dataset.v; // tocar de novo desmarca
@@ -752,8 +1127,11 @@ header {
     $('#fDate').value = t ? (t.date || '') : todayIso();
     $('#fTime').value = t ? (t.time || '') : '';
     segSet('#fQuad', t ? t.quadrant : 1);
-    segSet('#fArea', t ? t.area : (ui.filter !== 'all' ? ui.filter : ui.lastArea || 'Trabalho'));
-    formSub = t ? (t.sub || '') : (ui.sub || '');
+    let area = ui.lastArea || 'Trabalho', sub = '';
+    if (ui.filter.startsWith('sub:')) { sub = ui.filter.slice(4); area = areaOfSub(sub); }
+    else if (ui.filter !== 'all') { area = ui.filter; sub = ui.sub || ''; }
+    segSet('#fArea', t ? t.area : area);
+    formSub = t ? (t.sub || '') : sub;
     renderSubChips();
     segSet('#fPri', t ? t.priority : 'Média');
     syncWhen();
@@ -775,8 +1153,8 @@ header {
       time: $('#fTime').value
     };
     if (!data.title) return;
-    if (editing) Object.assign(editing, data);
-    else tasks.unshift(Object.assign({ id: newId(), done: false, completedAt: null, deletedAt: null }, data));
+    if (editing) touch(Object.assign(editing, data));
+    else tasks.unshift(touch(Object.assign({ id: newId(), done: false, completedAt: null, deletedAt: null }, data)));
     ui.lastArea = data.area;
     if (data.date && data.date > todayIso()) { ui.closed.later = false; toast('Agendada para ' + fmtDay(data.date) + ' · está em Próximos dias'); }
     else ui.closed[data.quadrant] = false;
@@ -786,7 +1164,8 @@ header {
   $('#fDelete').addEventListener('click', () => {
     if (!editing) return;
     const undo = snapshotUndo();
-    editing.deletedAt = new Date().toISOString();
+    editing.deletedAt = nowIso();
+    touch(editing);
     persist(); closeSheets(); render();
     toast('Movida para a lixeira', undo);
   });
@@ -807,7 +1186,7 @@ header {
         .sort((a, b) => (b.completedAt || '').localeCompare(a.completedAt || '')).slice(0, 200)
         .map(t => [t, 'Concluída ' + (t.completedAt ? fmtStamp(t.completedAt) : ''), '↩ Voltar']);
     } else {
-      items = tasks.filter(t => !alive(t))
+      items = tasks.filter(t => t.deletedAt && !t.purged)
         .sort((a, b) => b.deletedAt.localeCompare(a.deletedAt))
         .map(t => [t, 'Apagada ' + fmtStamp(t.deletedAt) + ' · some em ' + TRASH_DAYS + ' dias', '↩ Restaurar']);
       if (items.length) foot = '<button class="btn danger" style="width:100%" data-empty-trash>Esvaziar lixeira</button>';
@@ -826,40 +1205,218 @@ header {
       if (!t) return;
       if (histTab === 'done') { t.done = false; t.completedAt = null; }
       else t.deletedAt = null;
+      touch(t);
       persist(); render(); renderHistory();
       toast('Tarefa de volta na lista');
       return;
     }
     if (e.target.closest('[data-empty-trash]')) {
       if (!confirm('Apagar de vez as tarefas da lixeira?')) return;
-      tasks = tasks.filter(alive);
+      tasks.forEach(t => { if (t.deletedAt && !t.purged) { t.purged = true; touch(t); } });
       persist(); renderHistory();
     }
   });
 
-  // ---------- Subcategorias ----------
+  // ---------- Subcategorias e abas ----------
   function renderSubs() {
     const rows = [];
     Object.keys(AREAS).forEach(area => (ui.subs[area] || []).forEach(s => rows.push([area, s])));
-    $('#subList').innerHTML = rows.length ? rows.map(([a, s]) =>
-      '<div class="hist-item"><div><b>' + esc(s) + '</b><small>' + AREAS[a] + ' ' + a + '</small></div>' +
-      '<button data-del-sub="' + esc(a) + '|' + esc(s) + '">Remover</button></div>').join('')
-      : '<div class="empty">Nenhuma subcategoria.</div>';
+    $('#subList').innerHTML = rows.length ? rows.map(([a, s]) => {
+      const pinned = ui.pinned.includes(s);
+      return '<div class="hist-item"><div><b>' + subIcon(s) + ' ' + esc(s) + '</b><small>' + AREAS[a] + ' ' + a + '</small></div>' +
+        '<button class="' + (pinned ? 'pin-on' : '') + '" data-pin="' + esc(s) + '">📌 ' + (pinned ? 'Aba' : 'Fixar') + '</button>' +
+        '<button class="del" data-del-sub="' + esc(a) + '|' + esc(s) + '">✕</button></div>';
+    }).join('') : '<div class="empty">Nenhuma subcategoria.</div>';
   }
   $('#subList').addEventListener('click', e => {
+    const p = e.target.closest('[data-pin]');
+    if (p) {
+      const s = p.dataset.pin;
+      ui.pinned = ui.pinned.includes(s) ? ui.pinned.filter(x => x !== s) : ui.pinned.concat(s);
+      configChanged(); renderSubs(); render();
+      return;
+    }
     const b = e.target.closest('[data-del-sub]'); if (!b) return;
     const [a, s] = b.dataset.delSub.split('|');
     ui.subs[a] = (ui.subs[a] || []).filter(x => x !== s);
-    persistUi(); renderSubs();
+    ui.pinned = ui.pinned.filter(x => x !== s);
+    configChanged(); renderSubs(); render();
   });
   $('#subForm').addEventListener('submit', e => {
     e.preventDefault();
     const name = $('#subName').value.trim().slice(0, 30);
     if (!name) return;
-    addSub($('#subArea').value, name);
+    if (addSub($('#subArea').value, name)) configChanged();
     $('#subName').value = '';
-    persistUi(); renderSubs();
+    renderSubs();
   });
+
+  // ---------- Sincronização (Google Planilhas) ----------
+  let syncCfg = load(SYNC_STORE, null);
+  let syncState = 'off', syncMsg = '', lastSync = null, syncing = false, syncAgain = false, syncTimer = null;
+
+  function setSyncState(state, msg) {
+    syncState = state; syncMsg = msg || '';
+    const dot = $('#syncDot');
+    dot.classList.remove('ok', 'busy', 'err');
+    if (state !== 'off') dot.classList.add(state);
+    dot.title = state === 'ok' ? 'Sincronizado' : state === 'busy' ? 'Sincronizando…' : state === 'err' ? 'Erro: ' + syncMsg : 'Sincronização desligada';
+    if ($('#syncSheet').classList.contains('open')) renderSync();
+  }
+
+  function scheduleSync() {
+    if (!syncCfg) return;
+    clearTimeout(syncTimer);
+    syncTimer = setTimeout(sync, 1200);
+  }
+
+  function mergeTasks(local, remote) {
+    const map = new Map(local.map(t => [t.id, t]));
+    (remote || []).forEach(r => {
+      if (!r || !r.id) return;
+      const l = map.get(r.id);
+      if (!l || String(r.updatedAt || '') > String(l.updatedAt || '')) {
+        map.set(r.id, Object.assign({}, r, {
+          quadrant: Number(r.quadrant) || 1, completedAt: r.completedAt || null, deletedAt: r.deletedAt || null,
+          done: r.done === true || r.done === 'sim', purged: r.purged === true || r.purged === 'sim'
+        }));
+      }
+    });
+    return Array.from(map.values());
+  }
+
+  async function sync() {
+    if (!syncCfg) return;
+    if (syncing) { syncAgain = true; return; }
+    syncing = true;
+    setSyncState('busy');
+    const ctrl = new AbortController();
+    const timeout = setTimeout(() => ctrl.abort(), 25000);
+    try {
+      const res = await fetch(syncCfg.url, {
+        method: 'POST',
+        headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+        body: JSON.stringify({ key: syncCfg.key, tasks, config: { subs: ui.subs, pinned: ui.pinned, updatedAt: ui.cfgUpdatedAt } }),
+        signal: ctrl.signal
+      });
+      const j = await res.json();
+      if (j.error) throw new Error(j.error);
+      tasks = mergeTasks(tasks, j.tasks);
+      if (j.config && String(j.config.updatedAt || '') > String(ui.cfgUpdatedAt || '')) {
+        ui.subs = Object.assign({ Trabalho: [], Pessoal: [] }, j.config.subs);
+        ui.pinned = Array.isArray(j.config.pinned) ? j.config.pinned : ui.pinned;
+        ui.cfgUpdatedAt = j.config.updatedAt;
+      }
+      saveLocal(); persistUi();
+      lastSync = new Date();
+      if (!$('#celebrate').classList.contains('show') && !document.querySelector('.task.leaving')) render();
+      setSyncState('ok');
+    } catch (err) {
+      setSyncState('err', err.name === 'AbortError' ? 'demorou demais' : navigator.onLine === false ? 'sem internet' : err.message || 'falha de conexão');
+    } finally {
+      clearTimeout(timeout);
+      syncing = false;
+      if (syncAgain) { syncAgain = false; sync(); }
+    }
+  }
+
+  function randomKey() {
+    const a = new Uint8Array(24);
+    crypto.getRandomValues(a);
+    return Array.from(a, b => b.toString(16).padStart(2, '0')).join('');
+  }
+  function shareLink() {
+    const blob = btoa(JSON.stringify({ u: syncCfg.url, k: syncCfg.key }));
+    return location.origin + location.pathname + '#sync=' + encodeURIComponent(blob);
+  }
+  function parseSyncInput(v) {
+    v = v.trim();
+    const m = v.match(/#sync=([^&\s]+)/) || (!/^https?:/.test(v) ? [null, v] : null);
+    if (m) {
+      const o = JSON.parse(atob(decodeURIComponent(m[1])));
+      return { url: o.u, key: o.k };
+    }
+    if (!/^https:\/\/script\.google(usercontent)?\.com\//.test(v)) throw new Error('Cole o endereço do App da Web (começa com https://script.google.com/) ou o link de outro aparelho.');
+    return { url: v, key: randomKey() };
+  }
+
+  function connect(cfg) {
+    syncCfg = cfg;
+    save(SYNC_STORE, syncCfg);
+    sync();
+  }
+
+  function renderSync() {
+    const b = $('#syncBody');
+    if (!syncCfg) {
+      b.innerHTML =
+        '<p class="note">Suas tarefas ficam guardadas numa planilha Google sua e aparecem iguais no celular e no computador, sem exportar nada. Configure uma vez só, de preferência no computador (uns 5 minutos):</p>' +
+        '<ol class="steps">' +
+          '<li>Abra a planilha <b>FocusMatriz Nuvem</b> no seu Google Drive (ou crie uma planilha nova).</li>' +
+          '<li>Menu <b>Extensões › Apps Script</b>. Apague o que estiver lá e cole o código: <button class="btn primary" type="button" data-copy-code style="padding:6px 10px;margin-left:4px">Copiar código</button></li>' +
+          '<li>Clique em <b>Implantar › Nova implantação</b>. Na engrenagem, escolha <b>App da Web</b>.</li>' +
+          '<li>Em "Executar como": <b>Eu</b>. Em "Quem pode acessar": <b>Qualquer pessoa</b>. Clique em <b>Implantar</b>.</li>' +
+          '<li>Autorize com sua conta Google. Se aparecer "app não verificado", toque em <b>Avançado › Acessar</b> (o app é seu).</li>' +
+          '<li>Copie o <b>URL do App da Web</b> e cole aqui embaixo.</li>' +
+        '</ol>' +
+        '<input class="sync-url" id="syncUrl" placeholder="https://script.google.com/macros/s/…/exec ou link de outro aparelho">' +
+        '<button class="btn primary block" type="button" data-connect>Conectar</button>' +
+        '<p class="note" style="margin-top:10px">No segundo aparelho é só abrir o <b>link de conexão</b> que aparece aqui depois de conectar.</p>';
+      return;
+    }
+    const ok = syncState !== 'err';
+    b.innerHTML =
+      '<div class="sync-state' + (ok ? '' : ' err') + '">' +
+        (syncState === 'err' ? '⚠️ Não sincronizou: ' + esc(syncMsg) + '. Vou tentar de novo sozinho.'
+          : syncState === 'busy' ? '🔄 Sincronizando…'
+          : '✅ Conectado' + (lastSync ? ' · última sincronização ' + lastSync.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' }) : '')) +
+      '</div>' +
+      '<p class="note">Tudo o que você muda aqui vai para a planilha em segundos, e o outro aparelho atualiza ao abrir o app ou a cada 20 segundos com ele aberto.</p>' +
+      '<button class="btn primary block" type="button" data-share>📲 Enviar link de conexão para outro aparelho</button>' +
+      '<button class="btn block" type="button" data-sync-now>🔄 Sincronizar agora</button>' +
+      '<button class="btn block" type="button" data-disconnect>Desconectar este aparelho</button>';
+  }
+
+  function openSync() { renderSync(); openSheet('#syncSheet'); }
+
+  $('#syncSheet').addEventListener('click', async e => {
+    if (e.target.closest('[data-copy-code]')) {
+      try {
+        const code = await (await fetch('nuvem/Code.gs')).text();
+        await navigator.clipboard.writeText(code);
+        toast('Código copiado! Cole no Apps Script.');
+      } catch (err) { window.open('nuvem/Code.gs', '_blank'); }
+    }
+    if (e.target.closest('[data-connect]')) {
+      try { connect(parseSyncInput($('#syncUrl').value)); renderSync(); }
+      catch (err) { alert(err.message || 'Endereço inválido.'); }
+    }
+    if (e.target.closest('[data-sync-now]')) sync();
+    if (e.target.closest('[data-share]')) {
+      const link = shareLink();
+      try {
+        if (navigator.share) await navigator.share({ title: 'FocusMatriz', text: 'Abra para conectar o FocusMatriz neste aparelho:', url: link });
+        else { await navigator.clipboard.writeText(link); toast('Link copiado! Abra no outro aparelho.'); }
+      } catch (err) { if (err.name !== 'AbortError') prompt('Copie este link e abra no outro aparelho:', link); }
+    }
+    if (e.target.closest('[data-disconnect]')) {
+      if (!confirm('Desconectar? As tarefas continuam neste aparelho e na planilha.')) return;
+      syncCfg = null; save(SYNC_STORE, null); setSyncState('off'); renderSync();
+    }
+  });
+
+  // Abrir o link de conexão em outro aparelho conecta direto.
+  const hashSync = location.hash.match(/#sync=([^&]+)/);
+  if (hashSync) {
+    try {
+      connect(parseSyncInput(location.hash));
+      history.replaceState(null, '', location.pathname + location.search);
+      setTimeout(() => toast('☁️ Aparelho conectado! Sincronizando suas tarefas.'), 300);
+    } catch (e) { /* link inválido */ }
+  }
+
+  setInterval(() => { if (syncCfg && !document.hidden) sync(); }, 20000);
+  window.addEventListener('online', () => sync());
 
   // ---------- Instalar como app ----------
   let installEvent = null;
@@ -867,6 +1424,7 @@ header {
   window.addEventListener('appinstalled', () => { installEvent = null; $('#installItem').hidden = true; });
 
   // ---------- Menu ----------
+  function soundLabel() { $('#soundLabel').textContent = 'Som ao concluir: ' + (ui.sound ? 'ligado' : 'desligado'); }
   $('#menuSheet').addEventListener('click', e => {
     const b = e.target.closest('[data-act]');
     if (!b) return;
@@ -874,6 +1432,8 @@ header {
     if (act === 'import') { $('#fileInput').click(); return; }
     if (act === 'history') { openHistory('done'); return; }
     if (act === 'subs') { renderSubs(); openSheet('#subSheet'); return; }
+    if (act === 'sync') { openSync(); return; }
+    if (act === 'sound') { ui.sound = !ui.sound; persistUi(); soundLabel(); if (ui.sound) chime(); return; }
     closeSheets();
     if (act === 'install' && installEvent) { installEvent.prompt(); installEvent = null; $('#installItem').hidden = true; }
     if (act === 'export') exportXlsx();
@@ -884,8 +1444,8 @@ header {
       if (!live.length) return;
       if (!confirm('Mover TODAS as tarefas para a lixeira? Dá para restaurar por ' + TRASH_DAYS + ' dias.')) return;
       const undo = snapshotUndo();
-      const now = new Date().toISOString();
-      live.forEach(t => { t.deletedAt = now; });
+      const now = nowIso();
+      live.forEach(t => { t.deletedAt = now; t.updatedAt = now; });
       persist(); render();
       toast('Tudo na lixeira', undo);
     }
@@ -894,22 +1454,22 @@ header {
   function loadExamples() {
     const ex = [
       ['Pagar conta de luz (vence hoje)', 1, 'Pessoal', 'Finanças', 'Alta', 0, '10:00'],
-      ['Responder e-mail do cliente', 1, 'Trabalho', '', 'Média', 0, '09:00'],
+      ['Fazer slide da reunião', 1, 'Trabalho', '', 'Média', 0, '09:00'],
       ['Ligar para o encanador', 2, 'Pessoal', 'Casa Cabo Frio', 'Média', 0, ''],
       ['Consulta médica do pai', 3, 'Pessoal', 'Pai', 'Média', 7, '15:00'],
       ['Planejar metas do trimestre', 3, 'Trabalho', '', 'Média', 2, ''],
       ['Organizar fotos antigas', 4, 'Pessoal', 'Diversos', 'Baixa', null, '']
     ];
     const undo = snapshotUndo();
-    ex.forEach(([title, quadrant, area, sub, priority, days, time]) => tasks.push({
+    ex.forEach(([title, quadrant, area, sub, priority, days, time]) => tasks.push(touch({
       id: newId(), title, description: '', quadrant, area, sub, priority,
       date: days == null ? '' : addDays(days), time, done: false, completedAt: null, deletedAt: null
-    }));
+    })));
     persist(); render();
     toast('Exemplos carregados', undo);
   }
 
-  // ---------- Planilha (mesmas colunas do app antigo) ----------
+  // ---------- Planilha Excel (mesmas colunas do app antigo) ----------
   const COLS = ['ID', 'Título', 'Tipo', 'Descrição', 'Quadrante', 'Categoria', 'Prioridade', 'Data', 'Horário', 'Status', 'Concluída em'];
   let xlsxPromise = null;
   function loadXlsx() {
@@ -985,14 +1545,14 @@ header {
       const wb = XLSX.read(await file.arrayBuffer(), { cellDates: true });
       const rows = XLSX.utils.sheet_to_json(wb.Sheets[wb.SheetNames[0]], { defval: '' });
       const undo = snapshotUndo();
-      let added = 0, updated = 0;
+      let added = 0, updated = 0, newSubs = false;
       rows.forEach(r => {
         const title = String(r['Título'] || r['Titulo'] || '').trim();
         if (!title) return;
         const done = /conclu/i.test(String(r['Status'] || ''));
         const a = areaFromRow(r['Tipo'], r['Categoria']);
-        addSub(a.area, a.sub);
-        const t = {
+        if (addSub(a.area, a.sub)) newSubs = true;
+        const t = touch({
           id: String(r['ID'] || '').trim() || newId(),
           title,
           description: String(r['Descrição'] || r['Descricao'] || '').trim(),
@@ -1002,21 +1562,22 @@ header {
           date: normDate(r['Data']),
           time: String(r['Horário'] || r['Horario'] || '').trim().slice(0, 5),
           done,
-          completedAt: done ? (parseBrDateTime(r['Concluída em']) || new Date().toISOString()) : null,
+          completedAt: done ? (parseBrDateTime(r['Concluída em']) || nowIso()) : null,
           deletedAt: null
-        };
+        });
         const i = tasks.findIndex(x => x.id === t.id);
         if (i >= 0) { tasks[i] = t; updated++; } else { tasks.push(t); added++; }
       });
-      persist(); persistUi(); render();
+      if (newSubs) configChanged();
+      persist(); render();
       toast('Importadas: ' + added + ' novas, ' + updated + ' atualizadas', undo);
     } catch (err) {
       alert('Não consegui ler a planilha: ' + err.message);
     }
   });
 
-  // Atualiza "hoje", atrasadas e próximos quando o app volta para a tela.
-  document.addEventListener('visibilitychange', () => { if (!document.hidden) render(); });
+  // Atualiza "hoje", atrasadas e próximos quando o app volta para a tela, e busca mudanças do outro aparelho.
+  document.addEventListener('visibilitychange', () => { if (!document.hidden) { render(); sync(); } });
 
   if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) $('#logo').pauseAnimations();
 
@@ -1025,7 +1586,20 @@ header {
     navigator.serviceWorker.register('sw.js').catch(() => {});
   }
 
+  soundLabel();
+  setSyncState(syncCfg ? 'busy' : 'off');
   render();
+  if (syncCfg) sync();
+
+  // Atalho do ícone "Falar tarefa": abre direto ouvindo.
+  if (new URLSearchParams(location.search).get('voz') === '1') {
+    history.replaceState(null, '', location.pathname + location.hash);
+    setTimeout(startVoice, 400);
+  }
+  if (new URLSearchParams(location.search).get('nova') === '1') {
+    history.replaceState(null, '', location.pathname + location.hash);
+    setTimeout(() => openForm(null), 300);
+  }
 })();
 </script>
 </body>
