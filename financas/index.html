@@ -41,6 +41,7 @@
   <p>Seus lançamentos ficam na sua conta do Claude. Esta página só guarda o atalho.</p>
 </main>
 <script>
+  if ('serviceWorker' in navigator) navigator.serviceWorker.register('sw.js', { scope: './' }).catch(function () {});
   var instalado = window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone === true;
   if (instalado || /[?&]abrir=1/.test(location.search)) {
     document.getElementById('como').style.display = 'none';
