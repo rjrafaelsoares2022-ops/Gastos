@@ -549,7 +549,7 @@ header {
   };
   const AREAS = { 'Trabalho': '💼', 'Pessoal': '👤' };
   const DEFAULT_SUBS = { Trabalho: [], Pessoal: ['Pai', 'Casa Ilha', 'Casa Cabo Frio', 'Saúde', 'Finanças', 'Diversos'] };
-  const SUB_ICONS = { 'Pai': '👴', 'Mãe': '👵', 'Casa Ilha': '🏝️', 'Casa Cabo Frio': '🌊', 'Cabo Frio': '🏖️', 'Final de Semana': '🎉', 'Casa': '🏠', 'Saúde': '🍎', 'Finanças': '💰', 'Diversos': '🧩' };
+  const SUB_ICONS = { 'Pai': '👴', 'Mãe': '👵', 'Casa Ilha': '🏝️', 'Casa Cabo Frio': '🌊', 'Cabo Frio': '🏖️', 'Final de Semana': '🎉', 'Leila': '💜', 'Casa': '🏠', 'Saúde': '🍎', 'Finanças': '💰', 'Diversos': '🧩' };
   const subIcon = s => SUB_ICONS[s] || '🏷️';
   const PRI_RANK = { 'Alta': 0, 'Média': 1, 'Baixa': 2 };
 
@@ -579,6 +579,14 @@ header {
       if (!ui.pinned.includes(s)) ui.pinned.push(s);
     });
     ui.abas2611 = true;
+    ui.cfgUpdatedAt = new Date().toISOString();
+    try { localStorage.setItem(UI_STORE, JSON.stringify(ui)); } catch (e) { /* sem armazenamento */ }
+  }
+  // Aba Leila, pedida em 13/11/2026 (roda uma vez por aparelho).
+  if (!ui.abaLeila) {
+    addSubEarly('Pessoal', 'Leila');
+    if (!ui.pinned.includes('Leila')) ui.pinned.push('Leila');
+    ui.abaLeila = true;
     ui.cfgUpdatedAt = new Date().toISOString();
     try { localStorage.setItem(UI_STORE, JSON.stringify(ui)); } catch (e) { /* sem armazenamento */ }
   }

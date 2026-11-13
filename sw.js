@@ -1,6 +1,6 @@
 // Mantém o FocusMatriz abrindo mesmo sem internet.
 // Páginas: tenta a rede primeiro (para pegar atualizações) e cai no cache se estiver offline.
-const CACHE = 'focusmatriz-v5';
+const CACHE = 'focusmatriz-v6';
 const CORE = [
   './',
   'index.html',
