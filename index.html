@@ -549,7 +549,7 @@ header {
   };
   const AREAS = { 'Trabalho': '💼', 'Pessoal': '👤' };
   const DEFAULT_SUBS = { Trabalho: [], Pessoal: ['Pai', 'Casa Ilha', 'Casa Cabo Frio', 'Saúde', 'Finanças', 'Diversos'] };
-  const SUB_ICONS = { 'Pai': '👴', 'Mãe': '👵', 'Casa Ilha': '🏝️', 'Casa Cabo Frio': '🌊', 'Casa': '🏠', 'Saúde': '🍎', 'Finanças': '💰', 'Diversos': '🧩' };
+  const SUB_ICONS = { 'Pai': '👴', 'Mãe': '👵', 'Casa Ilha': '🏝️', 'Casa Cabo Frio': '🌊', 'Cabo Frio': '🏖️', 'Final de Semana': '🎉', 'Casa': '🏠', 'Saúde': '🍎', 'Finanças': '💰', 'Diversos': '🧩' };
   const subIcon = s => SUB_ICONS[s] || '🏷️';
   const PRI_RANK = { 'Alta': 0, 'Média': 1, 'Baixa': 2 };
 
@@ -572,6 +572,20 @@ header {
   }, load(UI_STORE, {}));
   ui.subs = Object.assign({ Trabalho: [], Pessoal: [] }, ui.subs);
   if (!Array.isArray(ui.pinned)) ui.pinned = ['Pai'];
+  // Abas pedidas em 13/11/2026: Cabo Frio e Final de Semana (roda uma vez por aparelho).
+  if (!ui.abas2611) {
+    ['Cabo Frio', 'Final de Semana'].forEach(s => {
+      addSubEarly('Pessoal', s);
+      if (!ui.pinned.includes(s)) ui.pinned.push(s);
+    });
+    ui.abas2611 = true;
+    ui.cfgUpdatedAt = new Date().toISOString();
+    try { localStorage.setItem(UI_STORE, JSON.stringify(ui)); } catch (e) { /* sem armazenamento */ }
+  }
+  function addSubEarly(area, sub) {
+    const list = ui.subs[area] || (ui.subs[area] = []);
+    if (!list.some(x => x.toLowerCase() === sub.toLowerCase())) list.push(sub);
+  }
 
   // Converte as antigas categorias (Casa, Saúde...) em área + subcategoria.
   function areaFromCategory(cat) {
